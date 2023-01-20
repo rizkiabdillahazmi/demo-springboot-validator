@@ -5,11 +5,15 @@ import com.rizkiaazmi.dto.MemberResponse;
 import com.rizkiaazmi.dto.ResponseData;
 import com.rizkiaazmi.entity.Member;
 import com.rizkiaazmi.repo.MemberRepo;
+import com.rizkiaazmi.utility.ErrorParsingUtility;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,14 +29,27 @@ public class MemberController {
     @Autowired
     private ModelMapper modelMapper;
     @PostMapping
-    public ResponseEntity<ResponseData<?>> createOne(@RequestBody MemberRequest memberRequest){
+    public ResponseEntity<ResponseData<?>> createOne(@Valid @RequestBody MemberRequest memberRequest, Errors errors){
         ResponseData<MemberResponse> response = new ResponseData<>();
-        Member member = modelMapper.map(memberRequest, Member.class);
-        member = memberRepo.save(member);
-        response.setStatus(true);
-        response.getMessages().add("Member Saved!");
-        response.setPayload(modelMapper.map(member, MemberResponse.class));
-        return ResponseEntity.ok(response);
+
+        if (errors.hasErrors()){
+            response.setStatus(false);
+            response.setMessages(ErrorParsingUtility.parse(errors));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+
+        try {
+            Member member = modelMapper.map(memberRequest, Member.class);
+            member = memberRepo.save(member);
+            response.setStatus(true);
+            response.getMessages().add("Member Saved!");
+            response.setPayload(modelMapper.map(member, MemberResponse.class));
+            return ResponseEntity.ok(response);
+        } catch (Exception exception){
+            response.setStatus(false);
+            response.getMessages().add(exception.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
     }
 
     @GetMapping

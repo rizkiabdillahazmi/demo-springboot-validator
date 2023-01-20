@@ -1,5 +1,6 @@
 package com.rizkiaazmi.dto;
 
+import com.rizkiaazmi.validator.EmailUniqueConstraint;
 import com.rizkiaazmi.validator.NumberUniqueConstraint;
 import com.rizkiaazmi.validator.PasswordEqualConstraint;
 import lombok.Data;
@@ -27,6 +28,7 @@ public class MemberRequest {
     private String memberName;
     @NotEmpty(message = "Email is required")
     @Email(message = "Invalid email address")
+    @EmailUniqueConstraint(message = "Email already in use")
     private String memberEmail;
     @NotEmpty(message = "Password is required")
     private String memberPassword;

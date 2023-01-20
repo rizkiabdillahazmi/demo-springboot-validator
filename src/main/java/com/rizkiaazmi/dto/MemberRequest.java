@@ -1,5 +1,6 @@
 package com.rizkiaazmi.dto;
 
+import com.rizkiaazmi.validator.PasswordEqualConstraint;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,6 +15,7 @@ import javax.validation.constraints.Size;
  */
 @Data
 @NoArgsConstructor
+@PasswordEqualConstraint(message = "Retype password invalid!")
 public class MemberRequest {
     @NotEmpty(message = "Number is required")
     @Size(min = 3, max = 5, message = "Number length must be in 3 to 5 characters")
